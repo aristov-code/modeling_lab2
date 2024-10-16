@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <fstream>
 
 
 using namespace std;
@@ -33,9 +32,9 @@ vector<double> generate_n_numbers()
 		while (next != prev && sequence.size() < 100000)
 		{
 			prev = mid_square(next);
-			sequence.push_back(double(prev) / UINT32_MAX);
+			if (prev != 0) sequence.push_back(double(prev) / UINT32_MAX);
 			next = mid_square(prev);
-			sequence.push_back(double(next) / UINT32_MAX);
+			if (next != 0) sequence.push_back(double(next) / UINT32_MAX);
 		}
 
 		seed = time(NULL);
@@ -69,26 +68,17 @@ vector<double> generate()
 	return generated_sequence;
 }
 
-void count_on_intervals(vector<double> s, int m = 50)
+vector<double> count_on_intervals(vector<double> s, const int A, const int B, int m = 50)
 {
-	float interval = 5. / m; // Длина одного интервала
-	int count;
-	fstream fout;
-	fout.open("count_of_numbers.txt"); // Будем записывать количество чисел на каждом интервале в файл
-	for (int i = 1; i < m + 1; i++)
+	vector<double> counts(m);
+	int n = 0;
+	for (int i = 0; i < s.size(); i++)
 	{
-		count = 0;
-		for (int j = 0; j < s.size(); j++)
-		{
-			if (s[j] * UINT32_MAX >= ((i - 1) * interval + 1) * UINT32_MAX && s[j] * UINT32_MAX < (i * interval + 1) * UINT32_MAX)
-			{
-				count++;
-			}
-		}
-		cout << "Количество чисел на полуинтервале [" << (i - 1) * interval + 1<< ", " << i * interval + 1<< "): " << count << endl;
-		fout << count << "\n";
+		n = int(ceil(((s[i] - A)  / (B - A)) * m) - 1);
+		counts[n] += 1;
 	}
-	fout.close();
+
+	return counts;
 }
 
 int main()
@@ -96,13 +86,17 @@ int main()
 	setlocale(LC_ALL, "rus");
 	cout.precision(11);
 
-
 	vector<double> s = generate();
 	/*
 	for (int i = 0; i < s.size(); i++)
 	{
 		cout << s[i] << endl;
 	}*/
-	count_on_intervals(s);
+	vector<double> c = count_on_intervals(s, 1, 6);
+	for (int i = 0; i < c.size(); i++)
+	{
+		cout << c[i] << endl;
+	}
+	
 	return 0;
 }
