@@ -14,7 +14,7 @@ uint64_t mid_square(uint64_t xi)
 }
 
 // Функция для генерации последовательности
-vector<double> generate_n_numbers()
+vector<double> generate_mid_square()
 {
 	vector<double> sequence;
 	uint64_t prev, next;
@@ -43,6 +43,7 @@ vector<double> generate_n_numbers()
 	return sequence;
 }
 
+// Функция распределения
 double F(double x)
 {
 	if (x >= 1 && x <= 2)
@@ -55,6 +56,7 @@ double F(double x)
 		return 1. / 7. * x + 1. / 7.;
 }
 
+// Обратная функция
 double X(double f)
 {
 	if (f >= 0 && f <= 1. / 7.)
@@ -67,9 +69,10 @@ double X(double f)
 		return 7 * f - 1;
 }
 
+// Генератор случайных чисел с заданным законом распределения
 vector<double> generate()
 {
-	vector<double> sequence = generate_n_numbers();
+	vector<double> sequence = generate_mid_square();
 	vector<double> generated_sequence;
 	double u = 0;
 	for (int i = 0; i < sequence.size(); i++)
@@ -80,6 +83,7 @@ vector<double> generate()
 	return generated_sequence;
 }
 
+//Подсчет количества чисел на интервалах
 vector<int> quantity_on_intervals(vector<double> s, const int A, const int B, int m = 50)
 {
 	vector<int> quantity(m);
@@ -93,7 +97,7 @@ vector<int> quantity_on_intervals(vector<double> s, const int A, const int B, in
 	return quantity;
 }
 
-
+// Расчет ожидаемого количества чисел на интервалах
 vector<double> find_expected_quantity(int sequence_size, const int A, const int B, int m = 50)
 {
 	vector<double> quantity(m);
@@ -119,26 +123,19 @@ int main()
 	fout.open("count_of_numbers.txt");
 
 	vector<double> s = generate();
-	/*
-	for (int i = 0; i < s.size(); i++)
-	{
-		cout << s[i] << endl;
-	}*/
 	vector<int> c = quantity_on_intervals(s, 1, 6);
 	vector<double> exp = find_expected_quantity(s.size(), 1, 6);
+
 	for (int i = 0; i < c.size(); i++)
-	{
-		cout << c[i] << endl;
 		fout << c[i] << endl;
-	}
+
 	fout.close();
+
 	fout.open("expected_numbers.txt");
-	cout << "------------------" << endl;
+
 	for (int i = 0; i < exp.size(); i++)
-	{
-		cout << exp[i] << endl;
 		fout << exp[i] << endl;
-	}
+
 	fout.close();
 	
 	return 0;
