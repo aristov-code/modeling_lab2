@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 
 using namespace std;
@@ -42,6 +43,30 @@ vector<double> generate_n_numbers()
 	return sequence;
 }
 
+double F(double x)
+{
+	if (x >= 1 && x <= 2)
+		return 1. / 7. * (x - 1) * (x - 1);
+
+	if (x >= 2 && x <= 4)
+		return 2. / 7. * x - 3. / 7.;
+
+	if (x >= 4 && x <= 6)
+		return 1. / 7. * x + 1. / 7.;
+}
+
+double X(double f)
+{
+	if (f >= 0 && f <= 1. / 7.)
+		return 1 + sqrt(7 * f);
+
+	if (f >= 1. / 7. && f <= 5. / 7.)
+		return 3.5 * f + 1.5;
+
+	if (f >= 5. / 7. && f <= 1)
+		return 7 * f - 1;
+}
+
 vector<double> generate()
 {
 	vector<double> sequence = generate_n_numbers();
@@ -49,36 +74,40 @@ vector<double> generate()
 	double u = 0;
 	for (int i = 0; i < sequence.size(); i++)
 	{
-		if (sequence[i] >= 0 && sequence[i] <= 1. / 7.)
-		{
-			u = 1 + sqrt(7 * sequence[i]);
-			generated_sequence.push_back(u);
-		}
-		if (sequence[i] >= 1. / 7. && sequence[i] <= 5. / 7.)
-		{
-			u = 3.5 * sequence[i] + 1.5;
-			generated_sequence.push_back(u);
-		}
-		if (sequence[i] >= 5. / 7. && sequence[i] <= 1)
-		{
-			u = 7 * sequence[i] - 1;
-			generated_sequence.push_back(u);
-		}
+		u = X(sequence[i]);
+		generated_sequence.push_back(u);
 	}
 	return generated_sequence;
 }
 
-vector<double> count_on_intervals(vector<double> s, const int A, const int B, int m = 50)
+vector<int> quantity_on_intervals(vector<double> s, const int A, const int B, int m = 50)
 {
-	vector<double> counts(m);
+	vector<int> quantity(m);
 	int n = 0;
 	for (int i = 0; i < s.size(); i++)
 	{
 		n = int(ceil(((s[i] - A)  / (B - A)) * m) - 1);
-		counts[n] += 1;
+		quantity[n] += 1;
 	}
 
-	return counts;
+	return quantity;
+}
+
+
+vector<double> find_expected_quantity(int sequence_size, const int A, const int B, int m = 50)
+{
+	vector<double> quantity(m);
+	double length = double((B - A)) / double(m);
+	double left_val = 0, right_val = 0;
+	for (int i = 0; i < m; i++)
+	{
+		left_val = F(i * length + 1);
+		right_val = F((i + 1) * length + 1);
+
+		quantity[i] = (right_val - left_val) * sequence_size;
+	}
+
+	return quantity;
 }
 
 int main()
@@ -86,17 +115,31 @@ int main()
 	setlocale(LC_ALL, "rus");
 	cout.precision(11);
 
+	ofstream fout;
+	fout.open("count_of_numbers.txt");
+
 	vector<double> s = generate();
 	/*
 	for (int i = 0; i < s.size(); i++)
 	{
 		cout << s[i] << endl;
 	}*/
-	vector<double> c = count_on_intervals(s, 1, 6);
+	vector<int> c = quantity_on_intervals(s, 1, 6);
+	vector<double> exp = find_expected_quantity(s.size(), 1, 6);
 	for (int i = 0; i < c.size(); i++)
 	{
 		cout << c[i] << endl;
+		fout << c[i] << endl;
 	}
+	fout.close();
+	fout.open("expected_numbers.txt");
+	cout << "------------------" << endl;
+	for (int i = 0; i < exp.size(); i++)
+	{
+		cout << exp[i] << endl;
+		fout << exp[i] << endl;
+	}
+	fout.close();
 	
 	return 0;
 }
